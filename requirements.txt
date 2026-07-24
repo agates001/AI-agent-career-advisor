@@ -1,0 +1,8 @@
+crewai
+python-dotenv
+chromadb
+crewai-tools
+langchain-openai
+pydantic
+pypdf
+streamlit

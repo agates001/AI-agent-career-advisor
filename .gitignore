@@ -1,0 +1,13 @@
+# Ignore these items - do not push to git. This is example and is not needed
+# because I instead created a folder in this Project to hold all older or other files
+# that will not be pushed. So just FYI on how you would do this.
+*.md   
+# The above will ignore any file that ends in .md
+# Also ignore these
+.env
+# It is critical NOT to push your passcodes to git!
+.venv/
+__pycache__/
+# Note: the "/" tells it to ignore the entire folder and everything in it (like other folders)
+# Ignore the folder created to house any other stuff. Mine is called Indirect_Project_Files
+Indirect_Project_Files/
