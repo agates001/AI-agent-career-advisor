@@ -1,8 +1,17 @@
+# --- Core Application Stack ---
+streamlit
 crewai
-python-dotenv
-chromadb
 crewai-tools
 langchain-openai
 pydantic
+python-dotenv
+chromadb
 pypdf
-streamlit
+
+# --- Local & Live Evaluation Suite ---
+deepeval
+pytest
+nest-asyncio
+pytest-asyncio
+pandas
+openpyxl
