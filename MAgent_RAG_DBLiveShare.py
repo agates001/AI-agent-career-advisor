@@ -8,6 +8,7 @@ from crewai.tools import tool
 import os
 from datetime import datetime, timezone
 from supabase import create_client, Client
+from pypdf import PdfReader
 
 # ========================================================
 # 1. Streamlit Web User Interface Setup
@@ -164,22 +165,30 @@ try:
         supabase: Client = create_client(url, key)
         
         # 2. Show a clean visual loading spinner in your Streamlit UI
-        with st.spinner("📡 Syncing agent report to Supabase production cloud..."):
+        with st.spinner("📡 Syncing agent report and resume to Supabase production cloud..."):
             # Modern timezone-aware UTC timestamp fetching
             now_utc = datetime.now(timezone.utc)
             
             # Generate a unique report ID based on modern timestamp
             report_id = f"report_{int(now_utc.timestamp())}"
+
+            ## Extract the text from your resume PDF right here
+            #from pypdf import PdfReader
+            resume_text_content = ""
+            reader = PdfReader("AmiGates_CV_2026_2.pdf") # 👈 Your target resume file
+            for page in reader.pages:
+                resume_text_content += page.extract_text()
             
-            # Send the data to your cloud database
-            supabase.table("agent_reports").upsert({  # 👈 Replace with your exact table name
+            # 2. Send everything up to your table at once
+            supabase.table("agent_reports").upsert({  
                 "id": report_id,
                 "agent_name": "RAG_Multi_Agent",
-                "content": result.raw,  # Grabs your exact markdown string
-                "updated_at": now_utc.isoformat()  # Modern ISO string with UTC offset
+                "content": result.raw,  
+                "updated_at": now_utc.isoformat(),
+                "resume_text": resume_text_content  # 👈 NEW: Maps text directly to your database column!
             }).execute()
             
-        st.success("✅ Multi-agent report successfully backed up to cloud database!")
+        st.success("✅ Multi-agent report and resume successfully backed up to cloud database!")
     else:
         st.warning("⚠️ Supabase credentials missing from environment. Skipping cloud sync.")
 except Exception as e:
