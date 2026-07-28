@@ -61,7 +61,7 @@ if st.button("⚖️ Run Quality Audit on Latest App Output"):
         st.stop()
         
     # Extract the single newest record row sitting at index 0
-    newest_record = live_reports
+    newest_record = live_reports[0]
     
     # B. Extract both data pieces dynamically right from your database columns!
     generated_report_content = newest_record["content"]
