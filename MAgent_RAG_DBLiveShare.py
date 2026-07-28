@@ -4,14 +4,12 @@ from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
 from crewai_tools import SerperDevTool, PDFSearchTool, WebsiteSearchTool
 from crewai.tools import tool
-## The following is to use the supabase
-import os
 from datetime import datetime, timezone
 from supabase import create_client, Client
 from pypdf import PdfReader
 
 # ========================================================
-# 1. Streamlit Web User Interface Setup
+# Streamlit Web User Interface Setup
 # ========================================================
 st.set_page_config(page_title="AI Agent Career Advisor", page_icon="🎯", layout="centered")
 st.title("Multi-Agent Job & Course Advisor")
@@ -23,7 +21,7 @@ load_dotenv()
 llm = "gpt-4o-mini"
 
 # ========================================================
-# 2. Main Execution Trigger Button
+# Main Execution Trigger Button
 # ========================================================
 if st.button("🚀 Run AI Agent Analysis"):
     st.info("Agents kicked off! They are hunting jobs, reading your resume, and scraping the CU Boulder catalog. Please wait 1-2 minutes...")
@@ -71,7 +69,7 @@ if st.button("🚀 Run AI Agent Analysis"):
             allow_delegation=False,
             tools=[ds_courses_tool, cs_courses_tool],
             max_iter=5,
-            max_rpm=10
+            max_reshape=10
         )
 
         JobHunter = Agent(
@@ -151,47 +149,41 @@ if st.button("🚀 Run AI Agent Analysis"):
         st.markdown("### Final Career Alignment Report")
         st.markdown(result.raw)
 
-
-#######################################################
-# --- STREAM TO SUPABASE CLOUD ---
-########################################################
-
-try:
-    # 1. Initialize client using the environment variables we safely stored
-    url: str = os.environ.get("SUPABASE_URL")
-    key: str = os.environ.get("SUPABASE_SECRET_KEY")
-    
-    if url and key:
-        supabase: Client = create_client(url, key)
-        
-        # 2. Show a clean visual loading spinner in your Streamlit UI
-        with st.spinner("📡 Syncing agent report and resume to Supabase production cloud..."):
-            # Modern timezone-aware UTC timestamp fetching
-            now_utc = datetime.now(timezone.utc)
+        # ========================================================
+        # --- STREAM TO SUPABASE CLOUD  ---
+        # ========================================================
+        try:
+            url: str = os.environ.get("SUPABASE_URL")
+            key: str = os.environ.get("SUPABASE_SECRET_KEY")
             
-            # Generate a unique report ID based on modern timestamp
-            report_id = f"report_{int(now_utc.timestamp())}"
-
-            ## Extract the text from your resume PDF right here
-            #from pypdf import PdfReader
-            resume_text_content = ""
-            reader = PdfReader("AmiGates_CV_2026_2.pdf") # 👈 Your target resume file
-            for page in reader.pages:
-                resume_text_content += page.extract_text()
-            
-            # 2. Send everything up to your table at once
-            supabase.table("agent_reports").upsert({  
-                "id": report_id,
-                "agent_name": "RAG_Multi_Agent",
-                "content": result.raw,  
-                "updated_at": now_utc.isoformat(),
-                "resume_text": resume_text_content  # 👈 NEW: Maps text directly to your database column!
-            }).execute()
-            
-        st.success("✅ Multi-agent report and resume successfully backed up to cloud database!")
-    else:
-        st.warning("⚠️ Supabase credentials missing from environment. Skipping cloud sync.")
-except Exception as e:
-    st.error(f"❌ Failed to stream report to cloud: {e}")
-
-
+            if url and key:
+                supabase: Client = create_client(url, key)
+                
+                with st.spinner("📡 Syncing agent report and resume to Supabase cloud..."):
+                    # Modern timezone-aware UTC timestamp fetching
+                    now_utc = datetime.now(timezone.utc)
+                    report_id = f"report_{int(now_utc.timestamp())}"
+                    
+                    # A. Extract the text content from the resume PDF
+                    resume_text_content = ""
+                    target_resume_path = "AmiGates_CV_2026_2.pdf"
+                    
+                    if os.path.exists(target_resume_path):
+                        reader = PdfReader(target_resume_path)
+                        for page in reader.pages:
+                            resume_text_content += page.extract_text()
+                    
+                    # B. Push all elements directly into your cloud data row
+                    supabase.table("agent_reports").upsert({  
+                        "id": report_id,
+                        "agent_name": "RAG_Multi_Agent",
+                        "content": result.raw,  
+                        "updated_at": now_utc.isoformat(),
+                        "resume_text": resume_text_content  
+                    }).execute()
+                    
+                st.success("✅ Multi-agent report and resume text successfully backed up to cloud database!")
+            else:
+                st.warning("⚠️ Supabase credentials missing from environment. Skipping cloud sync.")
+        except Exception as e:
+            st.error(f"❌ Failed to stream report to cloud: {e}")
