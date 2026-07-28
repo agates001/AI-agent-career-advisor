@@ -9,7 +9,7 @@ from supabase import create_client, Client
 from pypdf import PdfReader
 
 # ========================================================
-# Streamlit Web User Interface Setup
+# 1. Streamlit Web User Interface Setup
 # ========================================================
 st.set_page_config(page_title="AI Agent Career Advisor", page_icon="🎯", layout="centered")
 st.title("Multi-Agent Job & Course Advisor")
@@ -21,7 +21,7 @@ load_dotenv()
 llm = "gpt-4o-mini"
 
 # ========================================================
-# Main Execution Trigger Button
+# 2. Main Execution Trigger Button
 # ========================================================
 if st.button("🚀 Run AI Agent Analysis"):
     st.info("Agents kicked off! They are hunting jobs, reading your resume, and scraping the CU Boulder catalog. Please wait 1-2 minutes...")
@@ -69,7 +69,7 @@ if st.button("🚀 Run AI Agent Analysis"):
             allow_delegation=False,
             tools=[ds_courses_tool, cs_courses_tool],
             max_iter=5,
-            max_reshape=10
+            max_rpm=10  
         )
 
         JobHunter = Agent(
@@ -142,6 +142,7 @@ if st.button("🚀 Run AI Agent Analysis"):
             verbose=True 
         )
 
+        # Execution point
         result = job_crew.kickoff()
         
         # Display the results directly inside the webpage dynamically
@@ -150,7 +151,7 @@ if st.button("🚀 Run AI Agent Analysis"):
         st.markdown(result.raw)
 
         # ========================================================
-        # --- STREAM TO SUPABASE CLOUD  ---
+        # --- STREAM TO SUPABASE CLOUD (SAFE EXECUTABLE INSIDE BUTTON) ---
         # ========================================================
         try:
             url: str = os.environ.get("SUPABASE_URL")
@@ -160,11 +161,10 @@ if st.button("🚀 Run AI Agent Analysis"):
                 supabase: Client = create_client(url, key)
                 
                 with st.spinner("📡 Syncing agent report and resume to Supabase cloud..."):
-                    # Modern timezone-aware UTC timestamp fetching
                     now_utc = datetime.now(timezone.utc)
                     report_id = f"report_{int(now_utc.timestamp())}"
                     
-                    # A. Extract the text content from the resume PDF
+                    # 1. Extract the text content from the resume PDF
                     resume_text_content = ""
                     target_resume_path = "AmiGates_CV_2026_2.pdf"
                     
@@ -173,7 +173,7 @@ if st.button("🚀 Run AI Agent Analysis"):
                         for page in reader.pages:
                             resume_text_content += page.extract_text()
                     
-                    # B. Push all elements directly into your cloud data row
+                    # 2. Upload everything into your agent_reports table at once
                     supabase.table("agent_reports").upsert({  
                         "id": report_id,
                         "agent_name": "RAG_Multi_Agent",
