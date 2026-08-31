@@ -4,10 +4,7 @@ from crewai import Agent, Task, Crew, Process
 from crewai_tools import SerperDevTool, PDFSearchTool, WebsiteSearchTool
 from crewai.tools import tool
 
-
-
 ##
-
 ## To run this code
 ## type:  python MAgent_RAG2.py below in the terminal
 
@@ -99,8 +96,11 @@ JobHunter = Agent(
 #========================================================
 JobLister = Agent(
     role="Job Options Lister",
-    goal="Create useful and applicable information about job options and listing \ in the areas of data science, machine learning, and AI",
-    backstory="""You are a skilled writer who transforms dense job listings and job related information into clear, useful, and applicable blog posts. You make job requirements and focusses easy for to understand and to apply for.""",
+    goal="Create useful and applicable information about job options and listing \ "
+    "in the areas of data science, machine learning, and AI",
+    backstory="""You are a skilled writer who transforms dense job listings and job 
+    related information into clear, useful, and applicable blog posts. 
+    You make job requirements and focusses easy for to understand and to apply for.""",
     verbose=True,
     llm = llm, 
     allow_delegation=False,
@@ -162,7 +162,7 @@ job_write_task = Task(
     expected_output="A focused and easy to review formatted markdown blog post with a clear " \
                     "list of jobs, their key requirements, and a personalized resume alignment analysis.",
     agent=JobLister,
-    output_file="ai_agents_job_report41.md"
+    output_file="ai_agents_job_report6.md"
 )
 
 #========================================================
