@@ -5,11 +5,13 @@ from crewai import Agent, Task, Crew, Process
 from crewai_tools import SerperDevTool, PDFSearchTool, WebsiteSearchTool
 from crewai.tools import tool
 
+##Gates
+
 # ========================================================
-# 1. Streamlit Web User Interface Setup
+#  Streamlit Web User Interface Setup
 # ========================================================
-st.set_page_config(page_title="AI Agent Career Advisor", page_icon="🎯", layout="centered")
-st.title("🎯 Multi-Agent Job & Course Advisor")
+st.set_page_config(page_title="AI Agent Career Advisor", page_icon="", layout="centered")
+st.title("Multi-Agent Job & Course Advisor")
 st.write("This application runs a live multi-agent workflow to search for jobs, scan your resume, and recommend matching CU Boulder courses.")
 
 # Load the environment variables
@@ -18,9 +20,9 @@ load_dotenv()
 llm = "gpt-4o-mini"
 
 # ========================================================
-# 2. Main Execution Trigger Button
+# Main Execution Trigger Button
 # ========================================================
-if st.button("🚀 Run AI Agent Analysis"):
+if st.button("Run AI Agent Analysis"):
     st.info("Agents kicked off! They are hunting jobs, reading your resume, and scraping the CU Boulder catalog. Please wait 1-2 minutes...")
     
     with st.spinner("Agents are analyzing data..."):
@@ -126,7 +128,7 @@ if st.button("🚀 Run AI Agent Analysis"):
             explains how well they match the resume stack, and notes any skill gaps.""",
             expected_output="A focused and easy to review formatted markdown blog post with a clear list of jobs, their key requirements, and a personalized resume alignment analysis.",
             agent=JobLister,
-            output_file="ai_agents_job_report41.md"
+            output_file="ai_agents_job_report7.md"
         )
 
         # ========================================================
@@ -142,6 +144,6 @@ if st.button("🚀 Run AI Agent Analysis"):
         result = job_crew.kickoff()
         
         # Display the results directly inside the webpage dynamically
-        st.success("✅ Workflow Completed Successfully!")
-        st.markdown("### 📋 Final Career Alignment Report")
+        st.success("Workflow Completed Successfully!")
+        st.markdown("### Final Career Alignment Report")
         st.markdown(result.raw)
